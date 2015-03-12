@@ -34,10 +34,15 @@ $(function(){
 
   refreshTables = function() {
     query("SELECT name as Tables FROM sqlite_master WHERE type = 'table'; SELECT name as Views FROM sqlite_master WHERE type = 'view';", function(event){
-      $('#tables').html("<a>" + event.data.results[0].values.join("</a><br /><a>") + "</a>");
-      $('#views').html("<a>" + event.data.results[1].values.join("</a><br /><a>") + "</a>");
+      if(event.data.results.length > 0){
+        $('#tables').html("<a>" + event.data.results[0].values.join("</a><br /><a>") + "</a>");
+      }
+      if(event.data.results.length > 1){
+        $('#views').html("<a>" + event.data.results[1].values.join("</a><br /><a>") + "</a>");
+      }
       $('#tables a, #views a').click(function(){
-        query("SELECT * FROM '" + $(this).text() + "';",function(){
+        console.log($(this).text())
+        query("SELECT * FROM " + $(this).text() + ";",function(event){
           var results = event.data.results;
           html = '<table class="table table-striped"><thead><tr><th>' + results[0].columns.join("</th><th>") + '</th></tr></thead><tbody>';
           for (var j=0; j<results[0].values.length; j++) {
