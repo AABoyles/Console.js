@@ -20,9 +20,11 @@
 	    </div>
 	  </div>
 	</nav>
-	<div class="container-fluid"><div class="row">
+
+	<div class="container-fluid" id="content"><div class="row" id="content">
 
 		<div id="left" class="col-md-2">
+
 			<div class="panel panel-default">
 			  <div class="panel-body" id="button-wrapper">
 					<button id="newdb" class="btn btn-default col-md-4">
@@ -31,12 +33,12 @@
 					<button id="loaddb" class="btn btn-default col-md-4">
 						<span class="glyphicon glyphicon-folder-open"></span>
 					</button>
+					<input id="dbfile" class="btn btn-default col-md-4" style="opacity:0;position:absolute;left:33.3333333%;" type="file" />
 					<a id="savedb" class="btn btn-default col-md-4" download="database.sqlite" role="button">
 						<span class="glyphicon glyphicon-floppy-disk"></span>
 					</a>
 			  </div>
 			</div>
-			<input id="dbfile" style="display:none;" type="file" />
 
 			<div class="panel panel-default">
 				<div class="panel-heading">Tables</div>
@@ -57,9 +59,6 @@
             <li><button id="loadscript" class="btn btn-default btn-xs navbar-btn" data-toggle="button"><span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span></button></li>
             <li style="display:none;"><input type="file" id="script-file" /></li>
             <li><a href="#" id="savescript" class="btn btn-default btn-xs navbar-btn" role="button"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span></a></li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li><button id="execute" class="btn btn-default btn-xs navbar-btn">Execute!</button></li>
           </ul>
         </nav>
 				<div id="commands">DROP TABLE IF EXISTS employees;

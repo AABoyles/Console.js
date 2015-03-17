@@ -1,12 +1,7 @@
 $(function(){
-  ace.require("ace/ext/language_tools");
-  editor = ace.edit("commands");
+  var editor = ace.edit("commands");
   editor.setTheme("ace/theme/github");
   editor.getSession().setMode("ace/mode/sql");
-  editor.setOptions({
-    enableBasicAutocompletion: true,
-    enableSnippets: true
-  });
 
   var db = new Worker("js/sql.js");
 
