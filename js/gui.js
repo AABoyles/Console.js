@@ -1,12 +1,17 @@
 $(function(){
-  var editor = ace.edit("commands");
+  ace.require("ace/ext/language_tools");
+  editor = ace.edit("commands");
   editor.setTheme("ace/theme/github");
   editor.getSession().setMode("ace/mode/sql");
+  editor.setOptions({
+    enableBasicAutocompletion: true,
+    enableSnippets: true
+  });
 
   var db = new Worker("js/sql.js");
 
   db.onerror = function(e) {
-    $('#error').text(e.message).show();
+    $('#output').html("<div class='panel panel-danger'><div class='panel-heading'>Error:</div><div class='panel-body'>" + e.message + "</div></div>");
   }
   db.postMessage({action:'open'});
 
@@ -15,44 +20,42 @@ $(function(){
   	db.postMessage({action:'exec', sql:commands});
   };
 
-  $("#execute").click(function() {
+  $("#execute-script").click(function() {
     $('#error').hide();
-    query(editor.getValue(), function(event) {
-      var results = event.data.results;
-      $('#output').empty();
-      for (var i=0; i<results.length; i++) {
-        html = '<table class="table table-striped"><thead><tr><th>' + results[i].columns.join("</th><th>") + '</th></tr></thead><tbody>';
-        for (var j=0; j<results[i].values.length; j++) {
-          html += "<tr><td>" + results[i].values[j].join("</td><td>") + "</td></tr>";
-        }
-        html += '</tbody></table>'
-        $('#output').append(html);
-      }
-      refreshTables();
-    });
+    query(editor.getValue(), updateResults);
+  });
+
+  $("#execute-selection").click(function() {
+    $('#error').hide();
+    query(editor.session.getTextRange(editor.getSelectionRange()), updateResults);
   });
 
   refreshTables = function() {
     query("SELECT name as Tables FROM sqlite_master WHERE type = 'table'; SELECT name as Views FROM sqlite_master WHERE type = 'view';", function(event){
       if(event.data.results.length > 0){
-        $('#tables').html("<a>" + event.data.results[0].values.join("</a><br /><a>") + "</a>");
+        $('#tables').html("<li class='list-group-item'>" + event.data.results[0].values.join("</a><br /><a>") + "</li>");
       }
       if(event.data.results.length > 1){
-        $('#views').html("<a>" + event.data.results[1].values.join("</a><br /><a>") + "</a>");
+        $('#views').html("<li class='list-group-item'>" + event.data.results[1].values.join("</a><br /><a>") + "</li>");
       }
-      $('#tables a, #views a').click(function(){
-        console.log($(this).text())
-        query("SELECT * FROM " + $(this).text() + ";",function(event){
-          var results = event.data.results;
-          html = '<table class="table table-striped"><thead><tr><th>' + results[0].columns.join("</th><th>") + '</th></tr></thead><tbody>';
-          for (var j=0; j<results[0].values.length; j++) {
-            html += "<tr><td>" + results[0].values[j].join("</td><td>") + "</td></tr>";
-          }
-          html += '</tbody></table>'
-          $('#output').html(html);
-        });
+      $('#tables li, #views li').click(function(){
+        query("SELECT * FROM " + $(this).text() + ";", updateResults);
       });
     });
+  };
+
+  updateResults = function(event){
+    var results = event.data.results;
+    $('#output').empty();
+    for (var i=0; i<results.length; i++) {
+      html = '<div class="panel panel-default"><table class="table table-hover table-responsive"><thead><tr><th>' + results[i].columns.join("</th><th>") + '</th></tr></thead><tbody>';
+      for (var j=0; j<results[i].values.length; j++) {
+        html += "<tr><td>" + results[i].values[j].join("</td><td>") + "</td></tr>";
+      }
+      html += '</tbody></table></div>'
+      $('#output').append(html);
+    }
+    refreshTables();
   };
 
   $('#dbfile').change(function(){
